@@ -1,0 +1,14 @@
+#!/bin/bash
+
+USER=user
+HOST=ip_address
+
+#generic file
+FILE=/var/log/$( date '+%d-%m-%Y' )
+echo "today $(date '+%d-%m-%Y')" > $FILE
+
+#push file to another machine
+scp $FILE $USER@$HOST:/home/$USER
+
+#delete file
+ssh $USER@$HOST "rm -f /home/$USER/'$(date '+%d-%m-%Y' -d last-week)'"
