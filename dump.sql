@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS vk (
+message varchar(255) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+INSERT INTO vk(message) VALUES('hello');
+INSERT INTO vk(message) VALUES('I am');
+INSERT INTO vk(message) VALUES('NIKA')
