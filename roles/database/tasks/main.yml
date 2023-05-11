@@ -1,0 +1,54 @@
+---
+#- name: 1a. Add APT GPG signing key
+#  apt_key: url=http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xCBCB082A1BB943DB state=present
+
+#- name: 1b. Add APT repository
+#  apt_repository: repo='deb http://ftp.osuosl.org/pub/mariadb/repo/10.0/ubuntu $ansible_distribution_release main' state=present update_cache=yes
+
+- name: 1. Install MySQL server package
+  apt: name=mysql-server state=present
+
+- name: 2. Start MySQL Service
+  service: name=mysql state=started enabled=true
+
+- name: 3. Install python Mysql package #required for mysql_db tasks
+  pip: name=pymysql state=present
+
+- name: 4. Install php-mysql package
+  apt: name=php-mysql state=present
+
+- name: 5. MYSQL - Change root user password
+  mysql_user:
+      name: root
+      password: "{{ my_vars_passwd }}"
+      login_user: root
+      login_password: "{{ my_vars_passwd }}"
+      login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: 6. Create a new database
+  mysql_db:
+      name: vkdb
+      state: present
+      login_user: root
+      login_password: "{{ my_vars_passwd }}"
+- name: 6.1 add sample data to database
+  copy:
+      src: dump.sql
+      dest: /tmp/dump.sql
+- name: 6.2 insert sample data into database
+  mysql_db:
+      name: vkdb
+      state: import
+      target: /tmp/dump.sql
+      login_user: root
+      login_password: "{{ my_vars_passwd }}"
+- name: 7. Create a database user
+  mysql_user:
+      login_user: root
+      login_password: "{{ my_vars_passwd }}"
+      name: "{{ my_vars_user }}"
+      password: "{{ my_vars_passwd }}"
+      priv: '*.*:ALL'
+      host: localhost
+      state: present
+

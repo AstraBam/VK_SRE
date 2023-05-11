@@ -1,0 +1,12 @@
+---
+- name: 1. install Apache
+  apt: name=apache2 state=present
+
+- name: 2. install PHP module for Apache
+  apt: name=libapache2-mod-php state=present
+
+- name: 3. start Apache
+  service: name=apache2 state=started enabled=yes
+
+- name: 4. install PHP
+  apt: name=php state=present
