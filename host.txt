@@ -1,11 +1,11 @@
 [lin_servers]
-server1 ansible_host=your_host
+server1 ansible_host=192.168.70.141
 
 [lin_servers:vars]
 ansible_port=22
 ansible_connection=ssh
-ansible_user='user_name'
-ansible_ssh_pass='password'
-ansible_sudo_pass='password'
-my_vars_user='user_name'
-my_vars_passwd='password'
+ansible_user='nika'
+ansible_ssh_pass='0000'
+ansible_sudo_pass='0000'
+my_vars_user='user'
+my_vars_passwd='passwd'
