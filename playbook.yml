@@ -1,5 +1,5 @@
 ---
-- hosts: 192.168.70.141
+- hosts: lin_servers
   become: true
 
   roles:
