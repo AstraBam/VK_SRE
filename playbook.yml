@@ -1,5 +1,5 @@
 ---
-- hosts: lin_servers
+- hosts: localhost
   become: true
 
   roles:
