@@ -1,0 +1,126 @@
+---
+#  deployment на 3 реплики с nginx
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: nginx-deployment
+    labels:
+      app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          name: web
+      volumeMounts:
+      - name: config
+        mountPath: "/etc/nginx/conf.d"
+        readOnly: true
+  volumes:
+  - name: config
+    configMap:
+      name: nginx-settings
+      items:
+      - key: "nginx.properties"
+        path: "nginx.properties"
+---
+#  Конфиг в configmap для настройки nginx
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-settings
+data:
+  player_initial_lives: "3"
+  ui_properties_file_name: "nginx.properties"
+
+  nginx.properties: |
+    server {
+        listen 80;
+        
+        location / {
+            return "Cats & Dogs App";
+        }
+
+        location /cats {
+            proxy_pass http://localhost:81;
+        }
+
+        location /dogs {
+            proxy_pass http://localhost:82;
+        }
+
+        listen 81;
+
+        location / {
+            return "Cat's message";
+        }
+
+        listen 82;
+
+        location / {
+            return "Dog's message";
+        }
+    }
+
+---
+# ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  clusterIP: None
+  selector:
+    app: nginx
+  ports:
+  - name: newport
+    protocol: TCP
+    port: 80
+    targetPort: http-web
+
+---
+# Stateful App
+apiVersion: apps/v1 
+kind: StatefulSet
+metadata:
+  name: two-nginx
+  labels:
+    app: nginx
+spec:
+  serviceName: "nginx"
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 14
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: catnginx
+        image: nginx:latest
+        ports:
+        - containerPort: 81
+          name: catport
+        volumeMounts:
+        - name: nginx.properties:
+          mountPath: /etc/nginx/conf.d
+      - name: dognginx
+        image: nginx:latest
+        ports:
+        - containerPort: 82
+          name: dogport
+        volumeMounts:
+        - name: nginx.properties:
+          mountPath: /etc/nginx/conf.d
